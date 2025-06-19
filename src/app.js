@@ -4,6 +4,7 @@ import morgan from "morgan";
 import helmet from "helmet";
 import compression from "compression";
 import Database from './dbs/init.mongodb.js';
+import indexRouter from "./routers/index.js";
 
 const app = express();
 app.use(morgan("dev")); // Logging middleware
@@ -17,10 +18,17 @@ configDotenv()
 const _ = Database.getInstance();
 
 // Init routes
-app.get("/", (req, res) => {
-    res.send("Hello, Trong!");
-})
+app.use("/v1/api", indexRouter)
 
-// Func middleware to handle errors
+// func handle error
+app.use((error, req, res, next) => {
+  const statusCode = error.status || 500;
+  return res.status(statusCode).json({
+    status: "error",
+    code: statusCode,
+    stack: error.stack,
+    message: error.message || 'Internal Server Error in app',
+  });
+});
 
 export default app;

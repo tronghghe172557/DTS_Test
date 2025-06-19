@@ -12,6 +12,7 @@ const dev = {
     access_secret: process.env.DEV_JWT_ACCESS_SECRET || "your_dev_jwt_secret",
     refresh_secret: process.env.DEV_JWT_REFRESH_SECRET || "your_dev_jwt_secret",
     expiresIn: process.env.DEV_JWT_EXPIRES_IN || "1h",
+    expiresRefreshIn: process.env.JWT_EXPIRES_REFRESH_IN || "7d",
   }
 };
 

@@ -3,18 +3,17 @@ import { statusEnum } from "../constant/status.constant.js";
 
 const userSchema = new mongoose.Schema(
   {
-    name: { type: String, required: true, trim: true },
-    username: { type: String, required: true, unique: true, trim: true },
+    name: { type: String, required: false, trim: true, default: null },
+    username: { type: String, required: false, trim: true, default: null },
     password: { type: String, required: true },
     email: {
       type: String,
       required: true,
-      unique: true,
-      lowercase: true,
+      // unique: true,
       trim: true,
       index: true, // set index for faster queries
     },
-    phone: { type: String, required: true },
+    phone: { type: String, required: false, default: null },
     avatar: { type: String, default: "default_avatar.png" },
     status: {
       type: String,

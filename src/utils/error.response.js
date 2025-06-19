@@ -1,5 +1,5 @@
-import { StatusCodes } from "./statusCodes";
-import { ReasonPhrases } from "./reasonPhrases";
+import { StatusCodes } from "./statusCodes.js";
+import { ReasonPhrases } from "./reasonPhrases.js";
 
 class ErrorResponse extends Error {
   constructor(message, status) {
