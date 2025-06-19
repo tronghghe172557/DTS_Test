@@ -3,6 +3,7 @@ import express from "express";
 import morgan from "morgan";
 import helmet from "helmet";
 import compression from "compression";
+import Database from './dbs/init.mongodb.js';
 
 const app = express();
 app.use(morgan("dev")); // Logging middleware
@@ -13,6 +14,7 @@ app.use(express.urlencoded({ extended: true })); // URL-encoded parsing middlewa
 configDotenv()
 
 // DB config
+const _ = Database.getInstance();
 
 // Init routes
 app.get("/", (req, res) => {
