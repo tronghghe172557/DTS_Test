@@ -1,5 +1,12 @@
+import User from "../models/user.model.js";
+
 class UserService {
-  static async getUser(userId) {}
+  static async getUser(userId) {
+    return await User.findById(userId)
+      .select("-password -__v")
+      .lean()
+      .exec();  
+  }
 
   static async createUser(req, res) {}
 

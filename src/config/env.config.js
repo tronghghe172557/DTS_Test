@@ -1,4 +1,6 @@
-// lv0
+import dotenv from 'dotenv';
+dotenv.config(); // bug hereeeeeeeee
+
 const dev = {
   app: {
     port: process.env.DEV_APP_PORT || 3052,
@@ -15,10 +17,10 @@ const dev = {
     expiresRefreshIn: process.env.JWT_EXPIRES_REFRESH_IN || "7d",
   },
   redis: {
-    host: process.env.DEV_REDIS_HOST || "localhost",
-    port: process.env.DEV_REDIS_PORT || 6379,
-    username: process.env.REDIS_USERNAME || "",
-    password: process.env.DEV_REDIS_PASSWORD || "",
+    host: process.env.REDIS_HOST || "localhost",
+    port: parseInt(process.env.REDIS_PORT) || 6379,
+    username: process.env.REDIS_USERNAME || "default",
+    password: process.env.REDIS_PASSWORD || "",
   },
 };
 

@@ -1,51 +1,39 @@
-import { createClient } from "redis";
+// Thay đổi import
+import Redis from "ioredis";
 import dev from "../config/env.config.js";
 
 class RedisConnection {
   constructor() {
-    if (RedisConnection.instance) {
-      return RedisConnection.instance;
-    }
-
-    // Tạo config object cho Redis client
-    const redisConfig = {
-      socket: {
-        host: dev.redis.host,
-        port: dev.redis.port,
-      },
+    const redisOptions = {
+      host: dev.redis.host,
+      port: dev.redis.port,
+      username: dev.redis.username,
+      password: dev.redis.password,
+      maxRetriesPerRequest: null,
+      // enableReadyCheck: false, // Bỏ comment dòng này nếu bạn gặp lỗi READYONLY
     };
 
-    if (dev.redis.password) {
-      redisConfig.password = dev.redis.password;
-    }
+    this.client = new Redis(redisOptions);
 
-    if (dev.redis.username) {
-      redisConfig.username = dev.redis.username;
-    }
-
-    this.client = createClient(redisConfig);
-
-    this.client.on("error", (err) => console.error("Redis error:", err));
-
-    RedisConnection.instance = this;
+    // Các listener của ioredis, tên gọi tương tự như node-redis
+    this.client.on("connect", () =>
+      console.log("Redis client connected to the server.")
+    );
+    this.client.on("ready", () =>
+      console.log("Redis server is ready to accept commands.")
+    );
+    this.client.on("error", (err) => console.error("Redis Client Error:", err));
+    this.client.on("reconnecting", () =>
+      console.warn("!!! Redis client is reconnecting...")
+    );
+    this.client.on("end", () =>
+      console.log("Connection to Redis has been closed.")
+    );
   }
 
-  static getInstance() {
-    if (!RedisConnection.instance) {
-      new RedisConnection();
-    }
-    return RedisConnection.instance;
-  }
-
-  async connect() {
-    if (!this.client.isOpen) {
-      try {
-        await this.client.connect();
-        console.log("Redis connected successfully!");
-      } catch (err) {
-        console.error("Redis connection failed:", err);
-        throw err;
-      }
+  async disconnect() {
+    if (this.client.status === "ready" || this.client.status === "connecting") {
+      await this.client.quit();
     }
   }
 
@@ -54,4 +42,6 @@ class RedisConnection {
   }
 }
 
-export default RedisConnection.getInstance();
+const instance = new RedisConnection();
+
+export default instance;

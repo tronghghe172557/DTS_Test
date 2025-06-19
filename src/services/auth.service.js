@@ -3,8 +3,8 @@ import { BadRequestError } from "../utils/error.response.js";
 import { JwtUtil } from "../utils/jwt.util.js";
 import redis from "../dbs/init.redis.js";
 
-export class AuthService {
-  static async login({ email, password }) {
+class AuthService {
+  async login({ email, password }) {
     const user = await User.findOne({
       email: email,
     });
@@ -27,7 +27,7 @@ export class AuthService {
     };
   }
 
-  static async register({ email, password }) {
+  async register({ email, password }) {
     const userExists = await User.findOne({
       email: email,
     });
@@ -56,7 +56,7 @@ export class AuthService {
     };
   }
 
-  static async refreshToken({ refreshToken }) {
+  async refreshToken({ refreshToken }) {
     try {
       const payload = JwtUtil.verifyRefreshToken(refreshToken);
 
@@ -86,23 +86,22 @@ export class AuthService {
     }
   }
 
-  static async logout(token) {
+  async logout(token) {
     try {
-      await redis.connect(); // Ensure Redis connection is established
       // this method will send token to blacklist
-      await redis.getClient().set(token, token, {
-        EX: 60 * 60 * 24, // Set expiration time for the token (e.g., 1 day)
-        NX: true, // Only set the key if it does not already exist
-      });
+      await redis.getClient().setex(token, 60 * 60 * 24, "BlackList");
+      const tokenV2 = await redis.getClient().get(token);
     } catch (error) {
       throw new BadRequestError(`Failed to logout: ${error.message}`);
     }
   }
 
-  static async isTokenBlacklisted(token) {
+  async isTokenBlacklisted(token) {
     // Check if the token is in the blacklist
     const blacklist = redis.getClient();
     const isBlacklisted = await blacklist.get(token);
     return !!isBlacklisted; // Returns true if blacklisted, false otherwise
   }
 }
+
+export const authService = new AuthService();
