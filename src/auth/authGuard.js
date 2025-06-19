@@ -1,8 +1,10 @@
 import asyncHandler from "../utils/asyncHandler.util.js";
 import { AuthFailureError } from "../utils/error.response.js";
 import { JwtUtil } from "../utils/jwt.util.js";
+import redis from '../dbs/init.redis.js';
+import { AuthService } from "../services/auth.service.js";
 
-export const authGuard = asyncHandler(async (req, _, next ) => {
+ const authGuard = asyncHandler(async (req, _, next ) => {
     try {
         const bearToken = req.headers.authorization;
         if(!bearToken || !bearToken.startsWith("Bearer")) {
@@ -15,6 +17,10 @@ export const authGuard = asyncHandler(async (req, _, next ) => {
         }
 
         // check token in black list
+        const isBlacklisted = await AuthService.isTokenBlacklisted(token);
+        if(isBlacklisted) {
+            throw new AuthFailureError(`Token is blacklisted`);
+        }
 
         // verify token
         const { user } = JwtUtil.verifyAccessToken(token);
@@ -23,8 +29,11 @@ export const authGuard = asyncHandler(async (req, _, next ) => {
         }
 
         req.user = user;
+        req.token = token;
         next();
     } catch (error) {
         next(error);
     }
 })
+
+export default authGuard;

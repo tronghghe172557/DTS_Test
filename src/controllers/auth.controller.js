@@ -18,8 +18,16 @@ export class AuthController {
 
   static async refreshToken(req, res, next) {
     new SuccessResponse({
-      message: "Refresh token logic not implemented yet",
+      message: "Refresh token successfully",
       metadata: await AuthService.refreshToken(req.body),
+    }).send(res);
+  }
+
+  static async logout(req, res, next) {
+    const { token } = req.body;
+    await AuthService.logout(token);
+    new SuccessResponse({
+      message: "Logout successfully",
     }).send(res);
   }
 }

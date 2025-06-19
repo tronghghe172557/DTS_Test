@@ -1,6 +1,7 @@
 import User from "../models/user.model.js";
 import { BadRequestError } from "../utils/error.response.js";
 import { JwtUtil } from "../utils/jwt.util.js";
+import redis from "../dbs/init.redis.js";
 
 export class AuthService {
   static async login({ email, password }) {
@@ -86,10 +87,22 @@ export class AuthService {
   }
 
   static async logout(token) {
-    if (token === "fake-jwt-token") {
-      return { success: true, message: "User logged out successfully" };
-    } else {
-      throw new Error("Invalid token");
+    try {
+      await redis.connect(); // Ensure Redis connection is established
+      // this method will send token to blacklist
+      await redis.getClient().set(token, token, {
+        EX: 60 * 60 * 24, // Set expiration time for the token (e.g., 1 day)
+        NX: true, // Only set the key if it does not already exist
+      });
+    } catch (error) {
+      throw new BadRequestError(`Failed to logout: ${error.message}`);
     }
+  }
+
+  static async isTokenBlacklisted(token) {
+    // Check if the token is in the blacklist
+    const blacklist = redis.getClient();
+    const isBlacklisted = await blacklist.get(token);
+    return !!isBlacklisted; // Returns true if blacklisted, false otherwise
   }
 }

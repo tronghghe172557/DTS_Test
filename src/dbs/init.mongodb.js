@@ -3,7 +3,7 @@ import dev from '../config/env.config.js'
 const { host, port, name } = dev.db;
 const connectString = `mongodb://${host}:${port}/${name}`;
 
-class Database {
+class Mongodb {
   constructor() {
     this.connect();
   }
@@ -16,12 +16,12 @@ class Database {
   }
 
   static getInstance() {
-    if (!Database.instance) {
-      Database.instance = new Database();
+    if (!Mongodb.instance) {
+      Mongodb.instance = new Mongodb();
     }
 
-    return Database.instance;
+    return Mongodb.instance;
   }
 }
 
-export default Database;
+export default Mongodb.getInstance();
