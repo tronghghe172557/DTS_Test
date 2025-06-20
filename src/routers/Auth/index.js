@@ -4,7 +4,7 @@ import asyncHandler from "../../utils/asyncHandler.util.js";
 import authGuard from "../../auth/authGuard.js";
 import { authController } from "../../controllers/auth.controller.js";
 import { validate } from "../../middlewares/joiSchema.js";
-import { loginSchema, registerSchema } from "../../validations/auth.validation.js";
+import { loginSchema, registerSchema } from "../../middlewares/auth.middleware.js";
 
 const authRouter = express.Router();
 

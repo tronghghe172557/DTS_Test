@@ -14,6 +14,10 @@ class AuthService {
       throw new BadRequestError("User does not exist with this email");
     }
 
+    if(user.isDeleted == true) {
+      throw new BadRequestError("User account is not active");
+    }
+
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
       throw new BadRequestError("Invalid email or password");
