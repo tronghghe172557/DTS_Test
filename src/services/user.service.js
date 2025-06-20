@@ -10,7 +10,9 @@ class UserService {
 
   static async createUser(req, res) {}
 
-  static async updateUser(req, res) {}
+  static async updateUserProfile(userId) {
+    // const 
+  }
 
   static async deleteUser(req, res) {}
   s;

@@ -9,7 +9,7 @@ const userSchema = new mongoose.Schema(
     email: {
       type: String,
       required: true,
-      // unique: true,
+      unique: true,
       trim: true,
       index: true, // set index for faster queries
     },
@@ -27,6 +27,14 @@ const userSchema = new mongoose.Schema(
     timestamps: true,
   }
 );
+
+userSchema.set('toJSON', {
+  transform: function(doc, ret, options) {
+    delete ret.password;
+    delete ret.__v;
+    return ret;
+  }
+});
 
 const User = mongoose.model("User", userSchema);
 
