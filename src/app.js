@@ -6,6 +6,8 @@ import compression from "compression";
 import indexRouter from "./routers/index.js";
 import mongodb from "./dbs/init.mongodb.js";
 import redis from "./dbs/init.redis.js";
+import dotenv from 'dotenv';
+dotenv.config(); // bug hereeeeeeeee
 
 const app = express();
 app.use(morgan("dev")); // Logging middleware

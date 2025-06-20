@@ -1,7 +1,12 @@
 import mongoose from 'mongoose';
 import dev from '../config/env.config.js'
-const { host, port, name } = dev.db;
-const connectString = `mongodb://${host}:${port}/${name}`;
+
+const { host, port, name, user, pass } = dev.db;
+
+// Tạo connection string với authentication
+const connectString = user && pass 
+  ? `mongodb://${user}:${pass}@${host}:${port}/${name}?authSource=admin`
+  : `mongodb://${host}:${port}/${name}`;
 
 class Mongodb {
   constructor() {

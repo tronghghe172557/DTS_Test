@@ -1,0 +1,79 @@
+# docker-compose.yml (Updated)
+
+version: "3.8"
+
+# service : where we define our services: code, database, cache, etc.
+services:
+  # 1. Node.js service
+  nodejs-app: # start with a service name: nodejs-app
+    build: . # target Dockerfile in the current directory
+    container_name: my_nodejs_app # name of the container
+    ports: # this values will map values from .env file
+      - "${NODE_PORT}:${NODE_PORT}"
+    environment: # Mount environment variables from .env file
+      - PORT=${NODE_PORT}
+      # MongoDB
+      - MONGO_HOST=${MONGO_HOST}
+      - MONGO_PORT=${MONGO_PORT}
+      - MONGO_USER=${MONGO_USER}
+      - MONGO_PASS=${MONGO_PASS}
+      - MONGO_DB_NAME=${MONGO_DB_NAME}
+      # Redis
+      - REDIS_HOST=${REDIS_HOST}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_USER=${REDIS_USER}
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      # JWT
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET}
+    volumes:
+      # Mount the current directory to the /app in linux container
+      # it means that when you change code in your local machine, it will be reflected in the container
+      # and you don't need to rebuild the container
+      - .:/app
+      # Mount node_modules to avoid conflicts with host machine
+      - /app/node_modules
+    depends_on:
+      # Define this service will start AFTER these services are ready
+      # In this case, Node.js will start after MongoDB and Redis are ready
+      - mongodb_service
+      - redis_service
+    networks:
+      - my_network
+
+  # 2. MongoDB service
+  mongodb_service:
+    image: mongo:latest # use the latest MongoDB image
+    container_name: my_mongodb
+    environment: # config MongoDB with environment variables like as: username, password, database name
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_USER}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_PASS}
+    ports:
+      - "27017:27017"
+    volumes:
+    # Mount a volume to persist MongoDB data
+      - mongo_data:/data/db
+    networks:
+      - my_network
+
+  # 3. Redis service
+  redis_service:
+    image: redis:latest
+    container_name: my_redis
+    command: redis-server --requirepass ${REDIS_PASSWORD} # start Redis with a password
+    ports:
+      - "6379:6379"
+    volumes:
+    # Mount a volume to persist Redis data
+      - redis_data:/data
+    networks:
+      - my_network
+
+networks:
+  my_network:
+    driver: bridge # Use the default bridge network: this allows containers to communicate with each other
+
+# Volumes: define named volumes to persist data
+volumes:
+  mongo_data:
+  redis_data:
